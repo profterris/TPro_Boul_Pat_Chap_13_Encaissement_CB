@@ -1,0 +1,982 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Encaissements par carte bancaire</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=Inter:wght@300;400;500;600&display=swap');
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:        #f6f4ef;
+  --surface:   #ffffff;
+  --card:      #ffffff;
+  --border:    #e2ddd2;
+  --border-hi: #c9c1b0;
+  --text:      #26231d;
+  --text-dim:  #6b665c;
+  --accent:    #c47a12;
+  --green:     #2f8a4a;
+  --red:       #c23b3b;
+  --blue:      #2f6fb0;
+  --purple:    #7a4fb3;
+  --font-head: 'Syne', sans-serif;
+  --font-body: 'Inter', system-ui, sans-serif;
+  --radius:    10px;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.7;
+  min-height: 100vh;
+}
+
+/* HEADER */
+.site-header {
+  background: linear-gradient(135deg, #fff8ea 0%, #f3e6cc 100%);
+  border-bottom: 1px solid var(--border);
+  padding: 44px 20px 32px;
+  text-align: center;
+}
+.site-header .kicker {
+  display: inline-block;
+  background: var(--accent);
+  color: #fff;
+  font-family: var(--font-head);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  padding: 3px 12px;
+  border-radius: 3px;
+  margin-bottom: 18px;
+}
+.site-header h1 {
+  font-family: var(--font-head);
+  font-size: clamp(24px, 5vw, 38px);
+  font-weight: 800;
+  color: #3a2a10;
+  margin-bottom: 8px;
+  line-height: 1.15;
+}
+.site-header .sub {
+  color: var(--text-dim);
+  font-size: 15px;
+  max-width: 560px;
+  margin: 0 auto 24px;
+}
+
+/* NAV */
+.nav-anchors { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+.nav-anchors a {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 500;
+  padding: 7px 14px;
+  text-decoration: none;
+  transition: border-color .15s, color .15s;
+}
+.nav-anchors a:hover { border-color: var(--accent); color: var(--accent); }
+
+main { max-width: 820px; margin: 0 auto; padding: 36px 16px 80px; }
+
+/* BLOC */
+.bloc-titre {
+  display: flex; align-items: center; gap: 14px;
+  margin: 52px 0 6px; padding-bottom: 14px;
+  border-bottom: 1px solid var(--border);
+}
+.bloc-titre:first-child { margin-top: 0; }
+.bloc-titre .icone { font-size: 26px; flex-shrink: 0; }
+.bloc-titre h2 { font-family: var(--font-head); font-size: 20px; font-weight: 800; color: #3a2a10; }
+
+/* MÉMO */
+.memo {
+  background: #eef7f0;
+  border: 1px solid #cfe6d5;
+  border-left: 4px solid var(--green);
+  border-radius: var(--radius);
+  padding: 16px 20px;
+  margin: 14px 0 24px;
+  font-size: 15px;
+  line-height: 1.75;
+}
+.memo .memo-titre {
+  font-family: var(--font-head); font-size: 11px; font-weight: 700;
+  letter-spacing: 2px; text-transform: uppercase; color: var(--green); margin-bottom: 8px;
+}
+.memo code {
+  display: block; background: #ffffff; border: 1px solid #cfe6d5; border-radius: 5px;
+  padding: 8px 14px; color: #1d5e30; font-family: 'Courier New', monospace;
+  font-size: 14px; font-weight: 700; margin: 6px 0; white-space: normal;
+}
+.memo .note { color: var(--text-dim); font-size: 14px; margin-top: 6px; }
+.memo ul { padding-left: 20px; }
+
+/* MOTS-CLÉS */
+.lexique { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 10px; margin: 0 0 24px; }
+.mot {
+  background: #fff; border: 1px solid var(--border); border-radius: 8px; padding: 10px 14px; font-size: 14px;
+}
+.mot b { display: block; color: var(--blue); font-size: 15px; }
+
+/* CARTE EXERCICE */
+.exo-card {
+  background: var(--card); border: 1px solid var(--border); border-radius: var(--radius);
+  margin-bottom: 14px; overflow: hidden; transition: border-color .15s;
+  box-shadow: 0 1px 2px rgba(0,0,0,.04);
+}
+.exo-card:hover { border-color: var(--border-hi); }
+.exo-header {
+  display: flex; align-items: center; gap: 12px; padding: 14px 18px;
+  cursor: pointer; user-select: none; list-style: none; flex-wrap: wrap;
+}
+.exo-header::-webkit-details-marker { display: none; }
+.exo-num { font-family: var(--font-head); font-size: 12px; font-weight: 700; color: var(--text-dim); flex-shrink: 0; min-width: 40px; }
+.badge {
+  font-size: 10px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase;
+  padding: 2px 9px; border-radius: 3px; flex-shrink: 0;
+}
+.badge-1 { background: #e6f4ea; color: var(--green); border: 1px solid #bfe0c8; }
+.badge-2 { background: #fdf2dc; color: var(--accent); border: 1px solid #f0d49b; }
+.badge-3 { background: #fbe6e6; color: var(--red); border: 1px solid #efbcbc; }
+.badge-exam { background: #f0e8fa; color: var(--purple); border: 1px solid #d6c4ee; }
+.exo-titre-txt { font-size: 15px; font-weight: 600; color: var(--text); flex: 1; min-width: 160px; }
+.chevron { color: var(--text-dim); font-size: 13px; flex-shrink: 0; transition: transform .2s; }
+details[open] .chevron { transform: rotate(180deg); }
+
+.exo-body { padding: 0 18px 20px; border-top: 1px solid var(--border); }
+
+.contexte {
+  background: #eef4fb; border-left: 3px solid var(--blue); border-radius: 0 6px 6px 0;
+  padding: 14px 18px; margin: 16px 0; font-size: 15px; line-height: 1.75;
+}
+.contexte strong { color: #173f66; }
+.contexte ul { padding-left: 20px; margin-top: 4px; }
+
+.tableau-donnees { width: 100%; border-collapse: collapse; font-size: 14px; margin: 12px 0; }
+.tableau-donnees th {
+  background: #f3efe6; color: var(--text-dim); font-family: var(--font-head); font-size: 10px;
+  font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; padding: 8px 12px;
+  text-align: left; border-bottom: 1px solid var(--border);
+}
+.tableau-donnees td { padding: 8px 12px; border-bottom: 1px solid var(--border); color: var(--text); }
+.tableau-donnees tr:last-child td { border-bottom: none; }
+.tableau-donnees td.num { font-weight: 600; text-align: right; }
+
+.questions { margin: 18px 0 0; }
+.question { display: flex; gap: 10px; margin-bottom: 10px; align-items: flex-start; }
+.question .q-num {
+  flex-shrink: 0; width: 24px; height: 24px; background: var(--accent); color: #fff;
+  font-family: var(--font-head); font-weight: 800; font-size: 12px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center; margin-top: 2px;
+}
+.question p { font-size: 15px; margin: 0; }
+
+.ordre-grandeur {
+  background: #fff8e1; border: 1px solid #f0dc9a; border-radius: 6px;
+  padding: 10px 14px; font-size: 14px; color: #6e5410; margin: 12px 0 0;
+}
+.ordre-grandeur::before { content: "💡 "; }
+
+.btn-corrige {
+  background: #fff; border: 1px solid var(--border-hi); border-radius: 6px; color: var(--text-dim);
+  cursor: pointer; font-family: var(--font-body); font-size: 14px; font-weight: 500;
+  padding: 8px 16px; margin-top: 18px; transition: all .15s; display: flex; align-items: center; gap: 6px;
+}
+.btn-corrige:hover { border-color: var(--green); color: var(--green); }
+
+.correction {
+  display: none; background: #eef7f0; border: 1px solid #cfe6d5; border-radius: 6px;
+  padding: 16px 18px; margin-top: 14px; font-size: 15px; line-height: 1.8;
+}
+.correction.visible { display: block; }
+.correction .corr-etape { margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid #d6eadb; }
+.correction .corr-etape:last-child { margin-bottom: 0; padding-bottom: 0; border-bottom: none; }
+.correction .c-num {
+  display: inline-block; background: var(--green); color: #fff; font-family: var(--font-head);
+  font-weight: 800; font-size: 10px; width: 18px; height: 18px; border-radius: 50%;
+  text-align: center; line-height: 18px; margin-right: 6px;
+}
+.correction code {
+  display: block; background: #fff; border: 1px solid #cfe6d5; border-radius: 4px; padding: 6px 12px;
+  color: #1d5e30; font-family: 'Courier New', monospace; font-size: 14px; margin: 5px 0;
+}
+.correction .res { font-family: var(--font-head); font-weight: 700; color: #1b3d24; }
+.correction .conclu { margin-top: 8px; font-size: 14px; color: #3d6b4a; font-style: italic; }
+.correction ul { padding-left: 20px; }
+.correction .tableau-corr { width: 100%; border-collapse: collapse; font-size: 14px; margin: 8px 0; }
+.correction .tableau-corr th {
+  background: #dcefe1; color: var(--text-dim); font-size: 10px; font-weight: 700;
+  letter-spacing: 1px; text-transform: uppercase; padding: 6px 10px; text-align: left;
+}
+.correction .tableau-corr td { padding: 6px 10px; border-bottom: 1px solid #d6eadb; color: #2b4a33; }
+.correction .tableau-corr td.val { font-weight: 700; color: var(--green); text-align: right; }
+.correction .tableau-corr tr.t-total td { background: #dcefe1; font-weight: 700; color: #8a5a0c; }
+
+hr.section-sep { border: none; border-top: 1px solid var(--border); margin: 54px 0 0; }
+
+.site-footer {
+  border-top: 1px solid var(--border); padding: 28px 20px; text-align: center;
+  color: var(--text-dim); font-size: 12px;
+}
+
+/* ── AJOUTS : CARTE BANCAIRE DESSINÉE ── */
+.cb-zone { display: flex; gap: 18px; flex-wrap: wrap; align-items: center; margin: 14px 0; }
+.cb {
+  position: relative; width: 300px; max-width: 100%; aspect-ratio: 1.586;
+  border-radius: 14px; background: linear-gradient(135deg, #5c7fa8, #9bb6d4);
+  color: #fff; font-family: 'Courier New', monospace; box-shadow: 0 3px 8px rgba(0,0,0,.15);
+  flex-shrink: 0;
+}
+.cb .el { position: absolute; display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 700; }
+.cb .puce { width: 38px; height: 28px; border-radius: 5px; background: linear-gradient(135deg,#e9d38a,#c7a548); }
+.pastille {
+  display: inline-flex; align-items: center; justify-content: center; width: 20px; height: 20px;
+  border-radius: 50%; background: var(--red); color: #fff; font-family: var(--font-body);
+  font-size: 11px; font-weight: 700; flex-shrink: 0;
+}
+.cb-verso .bande { position: absolute; left: 0; right: 0; top: 18%; height: 18%; background: #222; }
+.cb-verso .sig {
+  position: absolute; left: 8%; top: 48%; width: 62%; height: 15%; background: #fff;
+  color: #333; font-family: cursive; font-size: 15px; padding-left: 8px; display: flex; align-items: center;
+}
+.cb-verso .crypto { position: absolute; left: 73%; top: 50%; color: #fff; font-weight: 700; font-size: 13px; }
+.legende { flex: 1; min-width: 200px; font-size: 15px; }
+.legende li { list-style: none; margin-bottom: 6px; display: flex; gap: 8px; align-items: center; }
+
+/* ── AJOUTS : TICKETS ── */
+.tickets { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 10px; margin: 12px 0; }
+.ticket {
+  background: #fffdf7; border: 1px dashed #b9b19d; border-radius: 4px; padding: 10px 12px;
+  font-family: 'Courier New', monospace; font-size: 12.5px; line-height: 1.45; color: #333;
+}
+.ticket .hl { background: #fff1b8; font-weight: 700; }
+.ticket.long { max-width: 380px; margin: 12px auto; }
+.ticket .sep { color: #aaa; overflow: hidden; white-space: nowrap; }
+.ticket .ligne { display: flex; justify-content: space-between; gap: 10px; }
+
+/* ── AJOUTS : VRAI / FAUX ── */
+.vf { border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; margin-bottom: 10px; background: #fff; }
+.vf p { margin-bottom: 8px; font-size: 15px; }
+.vf button {
+  font-family: var(--font-body); font-size: 14px; font-weight: 600; padding: 6px 18px; margin-right: 8px;
+  border-radius: 6px; border: 1px solid var(--border-hi); background: #fff; cursor: pointer; color: var(--text);
+}
+.vf button.ok { background: #e6f4ea; border-color: var(--green); color: var(--green); }
+.vf button.ko { background: #fbe6e6; border-color: var(--red); color: var(--red); }
+.vf .fb { display: none; font-size: 14px; margin-top: 8px; color: var(--text-dim); }
+.vf .fb.show { display: block; }
+.score { font-family: var(--font-head); font-weight: 700; color: var(--accent); margin-top: 6px; }
+
+@media (max-width: 520px) {
+  .exo-titre-txt { font-size: 14px; }
+  .contexte { font-size: 14px; }
+  .tableau-donnees { font-size: 13px; }
+}
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="kicker">💳 Gestion appliquée – Tle Bac Pro Boulanger-pâtissier</div>
+  <h1>Les encaissements<br>par carte bancaire</h1>
+  <p class="sub">Tout est sur cette page : pas besoin du manuel. Lis le document, réponds, puis vérifie avec la correction.</p>
+  <nav class="nav-anchors">
+    <a href="#carte">💳 La carte (3 ex.)</a>
+    <a href="#encaissement">🧾 L'encaissement (4 ex.)</a>
+    <a href="#transmission">📡 La transmission (2 ex.)</a>
+    <a href="#test">✔️ Test vrai / faux</a>
+    <a href="#bp">🏁 Sujet BP (2 ex.)</a>
+  </nav>
+</header>
+
+<main>
+
+<div class="contexte" style="margin-top:0">
+  <strong>Ta mission :</strong> David, ton responsable, vend surtout au comptant (le client paie tout de suite). Il te demande de l'aider à traiter les paiements par carte bancaire.
+</div>
+
+<div class="lexique">
+  <div class="mot"><b>Carte bancaire</b>moyen de paiement pour payer ou retirer des espèces.</div>
+  <div class="mot"><b>TPE</b>Terminal de Paiement Électronique : l'appareil où le client met sa carte.</div>
+  <div class="mot"><b>Facturette / ticket</b>petit ticket imprimé par le TPE après le paiement.</div>
+  <div class="mot"><b>Commission</b>somme que la banque prend au commerçant sur chaque paiement.</div>
+</div>
+
+<!-- ══ BLOC 1 – LA CARTE ══ -->
+<div class="bloc-titre" id="carte">
+  <span class="icone">💳</span>
+  <h2>Bloc 1 – Les caractéristiques de la carte bancaire</h2>
+</div>
+
+<div class="memo">
+  <div class="memo-titre">🗂 document 1 – la carte bancaire</div>
+  <p><strong>À quoi sert la carte ?</strong></p>
+  <ul>
+    <li>payer chez les commerçants qui ont un TPE ;</li>
+    <li>retirer des espèces au distributeur (DAB) ;</li>
+    <li>faire des opérations au guichet automatique (GAB) : virement, dépôt de chèques… ;</li>
+    <li>payer des achats sur Internet.</li>
+  </ul>
+  <p style="margin-top:8px"><strong>3 types de cartes :</strong></p>
+  <ul>
+    <li><strong>débit immédiat</strong> : l'argent part du compte tout de suite ;</li>
+    <li><strong>débit différé</strong> : l'argent part du compte à la fin du mois ;</li>
+    <li><strong>carte de crédit</strong> : l'argent est pris sur une réserve de crédit (un prêt).</li>
+  </ul>
+  <p style="margin-top:8px"><strong>Recto (devant) :</strong> logo de la banque, puce électronique, numéro à 16 chiffres, date de validité, nom et prénom du titulaire.</p>
+  <p><strong>Verso (dos) :</strong> piste magnétique, signature du titulaire, cryptogramme (les 3 chiffres imprimés).</p>
+</div>
+
+<!-- EX 1 -->
+<details class="exo-card">
+  <summary class="exo-header">
+    <span class="exo-num">Ex. 1</span>
+    <span class="badge badge-1">⬆ décollage</span>
+    <span class="exo-titre-txt">Le recto de la carte</span>
+    <span class="chevron">▼</span>
+  </summary>
+  <div class="exo-body">
+    <div class="cb-zone">
+      <div class="cb">
+        <div class="el" style="top:10%;right:6%">BANK <span class="pastille">1</span></div>
+        <div class="el" style="top:30%;left:7%"><span class="puce"></span><span class="pastille">2</span></div>
+        <div class="el" style="top:56%;left:7%;font-size:14px">1234 5678 9012 3456 <span class="pastille">3</span></div>
+        <div class="el" style="top:72%;right:8%">01/27 <span class="pastille">4</span></div>
+        <div class="el" style="top:84%;left:7%">A. PERSON <span class="pastille">5</span></div>
+      </div>
+    </div>
+    <div class="questions">
+      <div class="question"><span class="q-num">1</span><p>Donne le nom de chaque élément numéroté de 1 à 5.</p></div>
+    </div>
+    <div class="ordre-grandeur"><strong>Aide :</strong> relis la ligne « Recto » du document 1. Les 5 éléments sont dans le même ordre.</div>
+    <button class="btn-corrige" onclick="toggleCorr(this)">✅ Voir la correction</button>
+    <div class="correction">
+      <div class="corr-etape">
+        <ul class="legende" style="padding:0">
+          <li><span class="pastille">1</span> le logo de la banque</li>
+          <li><span class="pastille">2</span> la puce électronique</li>
+          <li><span class="pastille">3</span> le numéro de la carte à 16 chiffres</li>
+          <li><span class="pastille">4</span> la date de validité</li>
+          <li><span class="pastille">5</span> le nom et prénom du titulaire de la carte</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</details>
+
+<!-- EX 2 -->
+<details class="exo-card">
+  <summary class="exo-header">
+    <span class="exo-num">Ex. 2</span>
+    <span class="badge badge-1">⬆ décollage</span>
+    <span class="exo-titre-txt">Le verso de la carte</span>
+    <span class="chevron">▼</span>
+  </summary>
+  <div class="exo-body">
+    <div class="cb-zone">
+      <div class="cb cb-verso">
+        <div class="bande"></div>
+        <div class="el" style="top:21%;right:3%;z-index:2"><span class="pastille">1</span></div>
+        <div class="sig">A. Person</div>
+        <div class="crypto">123</div>
+        <div class="el" style="top:68%;left:10%"><span class="pastille">2</span></div>
+        <div class="el" style="top:68%;left:74%"><span class="pastille">3</span></div>
+      </div>
+    </div>
+    <div class="questions">
+      <div class="question"><span class="q-num">1</span><p>Donne le nom de chaque élément numéroté de 1 à 3.</p></div>
+    </div>
+    <div class="ordre-grandeur"><strong>Aide :</strong> la bande noire se lit avec un lecteur. Le petit nombre de 3 chiffres sert pour payer sur Internet.</div>
+    <button class="btn-corrige" onclick="toggleCorr(this)">✅ Voir la correction</button>
+    <div class="correction">
+      <div class="corr-etape">
+        <ul class="legende" style="padding:0">
+          <li><span class="pastille">1</span> la piste magnétique</li>
+          <li><span class="pastille">2</span> la signature manuscrite du titulaire</li>
+          <li><span class="pastille">3</span> le cryptogramme visuel (3 derniers chiffres imprimés)</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</details>
+
+<!-- EX 3 -->
+<details class="exo-card">
+  <summary class="exo-header">
+    <span class="exo-num">Ex. 3</span>
+    <span class="badge badge-2">⬆⬆ intermédiaire</span>
+    <span class="exo-titre-txt">Quel type de carte ?</span>
+    <span class="chevron">▼</span>
+  </summary>
+  <div class="exo-body">
+    <div class="contexte">
+      Trois clients de la boulangerie paient avec leur carte le 10 mars :
+      <ul>
+        <li><strong>Léa</strong> : l'argent est retiré de son compte le 10 mars.</li>
+        <li><strong>Karim</strong> : l'argent est retiré de son compte le 31 mars.</li>
+        <li><strong>Sofia</strong> : l'argent est pris sur une réserve d'argent prêtée par sa banque.</li>
+      </ul>
+    </div>
+    <div class="questions">
+      <div class="question"><span class="q-num">1</span><p>Pour chaque client, donne le type de carte utilisé.</p></div>
+      <div class="question"><span class="q-num">2</span><p>Quelle carte peut être dangereuse si on dépense trop ? Pourquoi ?</p></div>
+    </div>
+    <div class="ordre-grandeur"><strong>Aide :</strong> regarde <em>quand</em> l'argent part du compte : tout de suite ? fin du mois ? ou pas du compte du tout ?</div>
+    <button class="btn-corrige" onclick="toggleCorr(this)">✅ Voir la correction</button>
+    <div class="correction">
+      <div class="corr-etape">
+        <span class="c-num">1</span>
+        <table class="tableau-corr">
+          <thead><tr><th>Client</th><th>Type de carte</th></tr></thead>
+          <tbody>
+            <tr><td>Léa</td><td>carte à débit immédiat</td></tr>
+            <tr><td>Karim</td><td>carte à débit différé</td></tr>
+            <tr><td>Sofia</td><td>carte de crédit</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="corr-etape">
+        <span class="c-num">2</span>
+        <p class="res">La carte de crédit.</p>
+        <p class="conclu">L'argent dépensé est un prêt : il faut le rembourser, souvent avec des intérêts.</p>
+      </div>
+    </div>
+  </div>
+</details>
+
+
+<!-- ══ BLOC 2 – L'ENCAISSEMENT ══ -->
+<hr class="section-sep">
+<div class="bloc-titre" id="encaissement">
+  <span class="icone">🧾</span>
+  <h2>Bloc 2 – L'encaissement par carte bancaire</h2>
+</div>
+
+<div class="memo">
+  <div class="memo-titre">🗂 document 2 – principes du paiement électronique</div>
+  <p>Pour accepter la carte, le boulanger loue un <strong>TPE</strong> : <strong>30 € par mois</strong>.</p>
+  <p>Le client met sa carte dans le TPE et tape son code secret. Si le paiement est accepté, le TPE imprime <strong>2 tickets</strong> : un pour le client, un que le commerçant garde.</p>
+  <p>La carte est contrôlée automatiquement. Le commerçant est <strong>sûr d'être payé</strong>, même si le client n'a pas assez d'argent, <strong>jusqu'à un plafond</strong> fixé par la banque. Au-dessus du plafond, la carte est vérifiée par un centre national d'autorisation.</p>
+  <p>Sur chaque paiement, la banque prend une <strong>commission</strong> : entre 0,1 % et 1 % du montant.</p>
+  <code>Commission = Montant du ticket × taux de commission</code>
+  <code>Montant net perçu = Total des encaissements − Total des commissions</code>
+  <p class="note">Pour calculer 0,5 % : on multiplie par 0,005. On arrondit au centime (2 chiffres après la virgule).</p>
+</div>
+
+<div class="memo-titre" style="font-family:var(--font-head);font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--blue);margin:0 0 6px">🗂 document 3 – tickets de la journée du 21/09/N – La Maie Comtoise</div>
+<div class="tickets">
+  <div class="ticket">CARTE BANCAIRE EMV<br>A0000042 3030<br>CB<br><span class="hl">LE : 21/09/N À 10:15:23</span><br>BOULANGERIE-PÂTISSERIE<br><span class="hl">LA MAIE COMTOISE<br>MONTBÉLIARD 25200</span><br>5632145<br><span class="hl">************5689</span><br>FIN 28/02/N+1<br>001 000001 422 C<br><span class="hl">MONTANT = 28,00 €</span><br>DÉBIT<br>TICKET COMMERÇANT</div>
+  <div class="ticket">CARTE BANCAIRE EMV<br>A0000042 3030<br>CB<br>LE : 21/09/N À 11:25:20<br>BOULANGERIE-PÂTISSERIE<br>LA MAIE COMTOISE<br>MONTBÉLIARD 25200<br>5632145<br>************5812<br>FIN 30/09/N+1<br>001 000002 422 C<br>MONTANT = 35,20 €<br>DÉBIT<br>TICKET COMMERÇANT</div>
+  <div class="ticket">CARTE BANCAIRE EMV<br>A0000042 3030<br>CB<br>LE : 21/09/N À 14:32:40<br>BOULANGERIE-PÂTISSERIE<br>LA MAIE COMTOISE<br>MONTBÉLIARD 25200<br>5632145<br>************5689<br>FIN 30/04/N+1<br>001 000003 422 C<br>MONTANT = 15,60 €<br>DÉBIT<br>TICKET COMMERÇANT</div>
+  <div class="ticket">CARTE BANCAIRE EMV<br>A0000042 3030<br>CB<br>LE : 21/09/N À 18:45:53<br>BOULANGERIE-PÂTISSERIE<br>LA MAIE COMTOISE<br>MONTBÉLIARD 25200<br>5632145<br>************8923<br>FIN 30/11/N+1<br>001 000004 422 C<br>MONTANT = 17,90 €<br>DÉBIT<br>TICKET COMMERÇANT</div>
+</div>
+
+<!-- EX 4 -->
+<details class="exo-card">
+  <summary class="exo-header">
+    <span class="exo-num">Ex. 4</span>
+    <span class="badge badge-1">⬆ décollage</span>
+    <span class="exo-titre-txt">Avantage et inconvénients pour le commerçant</span>
+    <span class="chevron">▼</span>
+  </summary>
+  <div class="exo-body">
+    <div class="contexte">Utilise le <strong>document 2</strong> (encadré vert ci-dessus).</div>
+    <div class="questions">
+      <div class="question"><span class="q-num">1</span><p>Quel est le principal avantage, pour le commerçant, d'un paiement par carte ?</p></div>
+      <div class="question"><span class="q-num">2</span><p>Relève deux inconvénients pour le commerçant.</p></div>
+    </div>
+    <div class="ordre-grandeur"><strong>Aide :</strong> les inconvénients, ce sont des choses que le commerçant doit <em>payer</em>.</div>
+    <button class="btn-corrige" onclick="toggleCorr(this)">✅ Voir la correction</button>
+    <div class="correction">
+      <div class="corr-etape">
+        <span class="c-num">1</span>
+        <p class="res">Le commerçant est garanti d'être payé, même si le client n'a pas assez d'argent sur son compte, jusqu'au plafond fixé par la banque.</p>
+      </div>
+      <div class="corr-etape">
+        <span class="c-num">2</span>
+        <ul>
+          <li>une commission versée à la banque sur chaque paiement (0,1 % à 1 %) ;</li>
+          <li>la location du TPE : 30 € par mois.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</details>
+
+<!-- EX 5 -->
+<details class="exo-card">
+  <summary class="exo-header">
+    <span class="exo-num">Ex. 5</span>
+    <span class="badge badge-1">⬆ décollage</span>
+    <span class="exo-titre-txt">Lire un ticket d'encaissement</span>
+    <span class="chevron">▼</span>
+  </summary>
+  <div class="exo-body">
+    <div class="contexte">Regarde le <strong>premier ticket</strong> du document 3. Quatre informations sont surlignées en jaune.</div>
+    <div class="questions">
+      <div class="question"><span class="q-num">1</span><p>Quelle est la date et l'heure du paiement ?</p></div>
+      <div class="question"><span class="q-num">2</span><p>Qui reçoit l'argent (le bénéficiaire) ?</p></div>
+      <div class="question"><span class="q-num">3</span><p>Que représente « ************5689 » ? Pourquoi les chiffres sont-ils cachés ?</p></div>
+      <div class="question"><span class="q-num">4</span><p>Quel est le montant payé ?</p></div>
+    </div>
+    <div class="ordre-grandeur"><strong>Aide :</strong> « LE » = la date. Les étoiles cachent une partie d'un numéro de 16 chiffres.</div>
+    <button class="btn-corrige" onclick="toggleCorr(this)">✅ Voir la correction</button>
+    <div class="correction">
+      <div class="corr-etape"><span class="c-num">1</span> le 21/09/N à 10 h 15 min 23 s</div>
+      <div class="corr-etape"><span class="c-num">2</span> la boulangerie-pâtisserie La Maie Comtoise, à Montbéliard</div>
+      <div class="corr-etape"><span class="c-num">3</span> le numéro de la carte du client. On cache 12 chiffres pour la sécurité : personne ne peut recopier le numéro.</div>
+      <div class="corr-etape"><span class="c-num">4</span> <span class="res">28,00 €</span></div>
+    </div>
+  </div>
+</details>
+
+<!-- EX 6 -->
+<details class="exo-card">
+  <summary class="exo-header">
+    <span class="exo-num">Ex. 6</span>
+    <span class="badge badge-2">⬆⬆ intermédiaire</span>
+    <span class="exo-titre-txt">Nombre et total des tickets de la journée</span>
+    <span class="chevron">▼</span>
+  </summary>
+  <div class="exo-body">
+    <div class="contexte">Utilise les 4 tickets du <strong>document 3</strong>.</div>
+    <div class="questions">
+      <div class="question"><span class="q-num">1</span><p>Combien y a-t-il de tickets d'encaissement ?</p></div>
+      <div class="question"><span class="q-num">2</span><p>Calcule le montant total des tickets.</p></div>
+    </div>
+    <div class="ordre-grandeur"><strong>Ordre de grandeur :</strong> 30 + 35 + 15 + 20 = environ 100 €. Si tu trouves 500 € ou 10 €, recommence.</div>
+    <button class="btn-corrige" onclick="toggleCorr(this)">✅ Voir la correction</button>
+    <div class="correction">
+      <div class="corr-etape"><span class="c-num">1</span> <span class="res">4 tickets</span></div>
+      <div class="corr-etape">
+        <span class="c-num">2</span>
+        <code>28,00 + 35,20 + 15,60 + 17,90 = 96,70 €</code>
+        <p class="res">Total des encaissements = 96,70 €</p>
+      </div>
+    </div>
+  </div>
+</details>
+
+<!-- EX 7 -->
+<details class="exo-card">
+  <summary class="exo-header">
+    <span class="exo-num">Ex. 7</span>
+    <span class="badge badge-3">⬆⬆⬆ niveau examen</span>
+    <span class="exo-titre-txt">Commissions et montant net perçu</span>
+    <span class="chevron">▼</span>
+  </summary>
+  <div class="exo-body">
+    <div class="contexte">La banque prend une commission de <strong>0,5 %</strong> sur chaque ticket de La Maie Comtoise.</div>
+    <table class="tableau-donnees">
+      <thead><tr><th>Ticket</th><th>Montant</th><th>Commission (à calculer)</th></tr></thead>
+      <tbody>
+        <tr><td>001 000001 422 C</td><td class="num">28,00 €</td><td>…</td></tr>
+        <tr><td>001 000002 422 C</td><td class="num">35,20 €</td><td>…</td></tr>
+        <tr><td>001 000003 422 C</td><td class="num">15,60 €</td><td>…</td></tr>
+        <tr><td>001 000004 422 C</td><td class="num">17,90 €</td><td>…</td></tr>
+      </tbody>
+    </table>
+    <div class="questions">
+      <div class="question"><span class="q-num">1</span><p>Calcule la commission de chaque ticket, puis le total des commissions.</p></div>
+      <div class="question"><span class="q-num">2</span><p>Calcule le montant net perçu par ton employeur.</p></div>
+    </div>
+    <div class="ordre-grandeur"><strong>Ordre de grandeur :</strong> 0,5 % de 100 € = 0,50 €. Le total des commissions est donc proche de 0,50 €. Le montant net est un peu moins que 96,70 €.</div>
+    <button class="btn-corrige" onclick="toggleCorr(this)">✅ Voir la correction</button>
+    <div class="correction">
+      <div class="corr-etape">
+        <span class="c-num">1</span>
+        <table class="tableau-corr">
+          <thead><tr><th>Ticket</th><th>Calcul</th><th>Commission</th></tr></thead>
+          <tbody>
+            <tr><td>001 000001</td><td>28,00 × 0,005 = 0,14</td><td class="val">0,14 €</td></tr>
+            <tr><td>001 000002</td><td>35,20 × 0,005 = 0,176</td><td class="val">0,18 €</td></tr>
+            <tr><td>001 000003</td><td>15,60 × 0,005 = 0,078</td><td class="val">0,08 €</td></tr>
+            <tr><td>001 000004</td><td>17,90 × 0,005 = 0,0895</td><td class="val">0,09 €</td></tr>
+            <tr class="t-total"><td colspan="2">Total des commissions</td><td class="val">0,49 €</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="corr-etape">
+        <span class="c-num">2</span>
+        <code>Montant net perçu = 96,70 − 0,49 = 96,21 €</code>
+        <p class="res">Montant net perçu = 96,21 €</p>
+        <p class="conclu">Le boulanger ne reçoit pas 96,70 € mais 96,21 € : la banque a gardé 0,49 €.</p>
+      </div>
+    </div>
+  </div>
+</details>
+
+
+<!-- ══ BLOC 3 – LA TRANSMISSION ══ -->
+<hr class="section-sep">
+<div class="bloc-titre" id="transmission">
+  <span class="icone">📡</span>
+  <h2>Bloc 3 – La transmission des encaissements</h2>
+</div>
+
+<div class="memo">
+  <div class="memo-titre">🗂 document 4 – la télétransmission</div>
+  <p>Le soir, le commerçant <strong>envoie</strong> (télétransmet) tous les paiements par carte de la journée au centre de paiement. Le TPE imprime alors un <strong>relevé de fin de journée</strong>.</p>
+  <p>Il faut <strong>contrôler</strong> ce relevé :</p>
+  <ul>
+    <li>le <strong>nombre</strong> de transactions = le nombre de tickets ?</li>
+    <li>le <strong>montant total</strong> = le total des tickets ?</li>
+  </ul>
+</div>
+
+<div class="memo-titre" style="font-family:var(--font-head);font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--blue);margin:0 0 6px">🗂 document 5 – relevé des transactions du 21/09/N</div>
+<div class="ticket long">
+  CARTE BANCAIRE EMV<br>
+  <strong>IDENTIFICATION DU COMMERÇANT :</strong><br>
+  5632145 – LE : 21/09/N À 22H32<br>
+  CENTRE : 5468972135<br>
+  BOULANGERIE-PÂTISSERIE<br>LA MAIE COMTOISE<br>MONTBÉLIARD 25200 &nbsp;<span class="pastille">1</span><br>
+  TÉLÉCOLLECTE – BANQUE POPULAIRE
+  <div class="sep">************************************************</div>
+  <strong>REMISE CONSOLIDÉE</strong><br>
+  Remise n° 561203 – Fichier n° 085<br>
+  <strong>NOMBRE DE TRANSACTIONS EN €</strong>
+  <div class="ligne"><span>ACHATS</span><span>4</span></div>
+  <div class="ligne"><span>REMBOURSÉES</span><span>0</span></div>
+  <div class="ligne"><span>ANNULÉES</span><span>0</span></div>
+  <div class="ligne"><span>NON ABOUTIES</span><span>0</span></div>
+  <strong>MONTANT EN €</strong>
+  <div class="ligne"><span>ACHATS</span><span>96,70 &nbsp;<span class="pastille">2</span></span></div>
+  <div class="ligne"><span>REMBOURSÉES</span><span>0,00</span></div>
+  <div class="ligne"><span>ANNULÉES</span><span>0,00</span></div>
+  <div class="sep">************************************************</div>
+  <strong>REMISE CORRECTE<br>TRANSMISSION RÉUSSIE</strong> &nbsp;<span class="pastille">3</span><br>
+  BANQUE POPULAIRE
+  <div class="sep">************************************************</div>
+  <div style="text-align:center"><strong>TICKET À CONSERVER</strong></div>
+</div>
+
+<!-- EX 8 -->
+<details class="exo-card">
+  <summary class="exo-header">
+    <span class="exo-num">Ex. 8</span>
+    <span class="badge badge-2">⬆⬆ intermédiaire</span>
+    <span class="exo-titre-txt">Contrôler le relevé de fin de journée</span>
+    <span class="chevron">▼</span>
+  </summary>
+  <div class="exo-body">
+    <div class="contexte">Utilise le <strong>document 5</strong> et tes réponses à l'<strong>exercice 6</strong>.</div>
+    <div class="questions">
+      <div class="question"><span class="q-num">1</span><p>Relève le nombre de transactions sur le relevé.</p></div>
+      <div class="question"><span class="q-num">2</span><p>Relève le montant total des transactions.</p></div>
+      <div class="question"><span class="q-num">3</span><p>Compare avec l'exercice 6. Que constates-tu ?</p></div>
+    </div>
+    <div class="ordre-grandeur"><strong>Aide :</strong> regarde la ligne « ACHATS » dans les deux parties du relevé.</div>
+    <button class="btn-corrige" onclick="toggleCorr(this)">✅ Voir la correction</button>
+    <div class="correction">
+      <div class="corr-etape"><span class="c-num">1</span> <span class="res">4 transactions</span></div>
+      <div class="corr-etape"><span class="c-num">2</span> <span class="res">96,70 €</span></div>
+      <div class="corr-etape">
+        <span class="c-num">3</span>
+        <table class="tableau-corr">
+          <thead><tr><th></th><th>Tickets (ex. 6)</th><th>Relevé</th></tr></thead>
+          <tbody>
+            <tr><td>Nombre</td><td>4</td><td class="val">4</td></tr>
+            <tr><td>Montant</td><td>96,70 €</td><td class="val">96,70 €</td></tr>
+          </tbody>
+        </table>
+        <p class="conclu">Les chiffres sont identiques : aucune anomalie. Le contrôle est bon.</p>
+      </div>
+    </div>
+  </div>
+</details>
+
+<!-- EX 9 -->
+<details class="exo-card">
+  <summary class="exo-header">
+    <span class="exo-num">Ex. 9</span>
+    <span class="badge badge-1">⬆ décollage</span>
+    <span class="exo-titre-txt">Les 3 parties du relevé</span>
+    <span class="chevron">▼</span>
+  </summary>
+  <div class="exo-body">
+    <div class="contexte">Sur le <strong>document 5</strong>, trois zones ont une pastille rouge (1, 2, 3).</div>
+    <div class="questions">
+      <div class="question"><span class="q-num">1</span><p>Que contient chaque partie numérotée ?</p></div>
+    </div>
+    <div class="ordre-grandeur"><strong>Aide :</strong> partie 1 = qui ? partie 2 = combien ? partie 3 = est-ce que l'envoi a marché ?</div>
+    <button class="btn-corrige" onclick="toggleCorr(this)">✅ Voir la correction</button>
+    <div class="correction">
+      <div class="corr-etape">
+        <ul class="legende" style="padding:0">
+          <li><span class="pastille">1</span> les coordonnées du commerçant bénéficiaire</li>
+          <li><span class="pastille">2</span> le nombre de transactions et le montant en euros envoyés</li>
+          <li><span class="pastille">3</span> la validation de la transmission (envoi réussi)</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</details>
+
+
+<!-- ══ TEST ══ -->
+<hr class="section-sep">
+<div class="bloc-titre" id="test">
+  <span class="icone">✔️</span>
+  <h2>Test – Vrai ou faux ?</h2>
+</div>
+<p style="color:var(--text-dim);font-size:14px;margin:10px 0 16px">Clique sur ta réponse. La page te dit tout de suite si c'est juste.</p>
+
+<div id="vf-zone">
+  <div class="vf" data-rep="V">
+    <p>1. La différence entre une carte de débit et une carte de crédit vient du compte où l'argent est pris.</p>
+    <button onclick="vf(this,'V')">Vrai</button><button onclick="vf(this,'F')">Faux</button>
+    <div class="fb">Vrai : carte de débit = compte courant ; carte de crédit = réserve de crédit.</div>
+  </div>
+  <div class="vf" data-rep="F">
+    <p>2. Avec la carte, le commerçant est sûr d'être payé, quel que soit le montant.</p>
+    <button onclick="vf(this,'V')">Vrai</button><button onclick="vf(this,'F')">Faux</button>
+    <div class="fb">Faux : la garantie existe seulement jusqu'à un plafond fixé par la banque.</div>
+  </div>
+  <div class="vf" data-rep="V">
+    <p>3. Sur chaque paiement par carte, la banque prend automatiquement une commission.</p>
+    <button onclick="vf(this,'V')">Vrai</button><button onclick="vf(this,'F')">Faux</button>
+    <div class="fb">Vrai : entre 0,1 % et 1 % du montant.</div>
+  </div>
+  <div class="vf" data-rep="F">
+    <p>4. Le commerçant reçoit toujours le total exact des encaissements.</p>
+    <button onclick="vf(this,'V')">Vrai</button><button onclick="vf(this,'F')">Faux</button>
+    <div class="fb">Faux : il reçoit le total moins les commissions (montant net).</div>
+  </div>
+  <div class="vf" data-rep="V">
+    <p>5. Les paiements par carte sont obligatoirement envoyés à un centre de paiement.</p>
+    <button onclick="vf(this,'V')">Vrai</button><button onclick="vf(this,'F')">Faux</button>
+    <div class="fb">Vrai : c'est la télétransmission de fin de journée.</div>
+  </div>
+  <p class="score" id="score"></p>
+</div>
+
+
+<!-- ══ BLOC 4 – SUJET BP ══ -->
+<hr class="section-sep">
+<div class="bloc-titre" id="bp">
+  <span class="icone">🏁</span>
+  <h2>Bloc 4 – Application : extrait d'un sujet BP Boulanger</h2>
+</div>
+
+<div class="memo">
+  <div class="memo-titre">🗂 rappel avant le sujet</div>
+  <code>Commission = Montant × taux</code>
+  <code>Si la commission &lt; minimum → on retient le minimum</code>
+  <code>Montant net perçu = Total des encaissements − Total des commissions</code>
+  <p class="note">Pour calculer 0,45 % : on multiplie par 0,0045.</p>
+</div>
+
+<!-- EX 10 -->
+<details class="exo-card">
+  <summary class="exo-header">
+    <span class="exo-num">Ex. 10</span>
+    <span class="badge badge-exam">🎓 sujet complet</span>
+    <span class="exo-titre-txt">Boulangerie Sésame – contrôle et commissions</span>
+    <span class="chevron">▼</span>
+  </summary>
+  <div class="exo-body">
+    <div class="contexte">
+      Tu es apprenti(e) à la boulangerie-pâtisserie <strong>Sésame</strong>, à Paris. Ton employeur te demande de traiter les paiements par carte du <strong>25 novembre N</strong>.<br><br>
+      <strong>Document 1 – doubles des facturettes du 25/11/N</strong>
+      <table class="tableau-donnees">
+        <thead><tr><th>Ticket</th><th>Heure</th><th>Carte</th><th>Montant</th></tr></thead>
+        <tbody>
+          <tr><td>001 000001 586 C</td><td>11:23:17</td><td>****4740</td><td class="num">65,50 €</td></tr>
+          <tr><td>001 000002 586 C</td><td>12:45:10</td><td>****3625</td><td class="num">82,30 €</td></tr>
+          <tr><td>001 000003 586 C</td><td>14:12:45</td><td>****2310</td><td class="num">95,45 €</td></tr>
+          <tr><td>001 000004 586 C</td><td>20:15:53</td><td>****5431</td><td class="num">67,75 €</td></tr>
+        </tbody>
+      </table>
+      <strong>Document 2 – relevé des transactions du 25/11/N (extrait)</strong>
+      <div class="ticket long" style="margin:8px 0">
+        BOULANGERIE-PÂTISSERIE SÉSAME – PARIS 75004<br>
+        LE : 25/11/N À 23H25 – CIC
+        <div class="sep">************************************************</div>
+        <strong>NOMBRE DE TRANSACTIONS</strong>
+        <div class="ligne"><span>ACHATS</span><span>4</span></div>
+        <div class="ligne"><span>REMBOURSÉES / ANNULÉES</span><span>0</span></div>
+        <strong>MONTANT EN €</strong>
+        <div class="ligne"><span>ACHATS</span><span>311,00</span></div>
+        <div class="ligne"><span>REMBOURSÉES / ANNULÉES</span><span>0,00</span></div>
+        <div class="sep">************************************************</div>
+        <strong>REMISE CORRECTE – TRANSMISSION RÉUSSIE</strong>
+      </div>
+      <strong>Document 3 – frais bancaires (banque CIC)</strong>
+      <ul>
+        <li>commission : <strong>0,45 %</strong> par paiement ;</li>
+        <li>avec un <strong>minimum de 0,35 €</strong> par paiement.</li>
+      </ul>
+    </div>
+    <div class="questions">
+      <div class="question"><span class="q-num">1</span><p>D'après le document 1, relève le nombre de facturettes.</p></div>
+      <div class="question"><span class="q-num">2</span><p>Calcule le montant total des facturettes.</p></div>
+      <div class="question"><span class="q-num">3</span><p>D'après le document 2, relève le nombre de transactions.</p></div>
+      <div class="question"><span class="q-num">4</span><p>Relève le montant total des transactions.</p></div>
+      <div class="question"><span class="q-num">5</span><p>Que constates-tu ?</p></div>
+      <div class="question"><span class="q-num">6</span><p>D'après le document 3, calcule la commission de chaque ticket, puis le total.</p></div>
+      <div class="question"><span class="q-num">7</span><p>Calcule le montant net perçu par ton employeur.</p></div>
+    </div>
+    <div class="ordre-grandeur"><strong>Piège :</strong> si une commission calculée est plus petite que 0,35 €, on écrit 0,35 €. Le total des commissions est autour de 1,50 €.</div>
+    <button class="btn-corrige" onclick="toggleCorr(this)">✅ Voir la correction</button>
+    <div class="correction">
+      <div class="corr-etape"><span class="c-num">1</span> <span class="res">4 facturettes</span></div>
+      <div class="corr-etape">
+        <span class="c-num">2</span>
+        <code>65,50 + 82,30 + 95,45 + 67,75 = 311,00 €</code>
+      </div>
+      <div class="corr-etape"><span class="c-num">3</span> <span class="res">4 transactions</span></div>
+      <div class="corr-etape"><span class="c-num">4</span> <span class="res">311,00 €</span></div>
+      <div class="corr-etape">
+        <span class="c-num">5</span>
+        <p class="conclu">Le nombre (4) et le montant (311 €) sont les mêmes sur les facturettes et sur le relevé : aucune anomalie.</p>
+      </div>
+      <div class="corr-etape">
+        <span class="c-num">6</span>
+        <table class="tableau-corr">
+          <thead><tr><th>Ticket</th><th>Calcul</th><th>Retenu</th></tr></thead>
+          <tbody>
+            <tr><td>001 000001</td><td>65,50 × 0,0045 = 0,29 → inférieur au minimum</td><td class="val">0,35 €</td></tr>
+            <tr><td>001 000002</td><td>82,30 × 0,0045 = 0,37</td><td class="val">0,37 €</td></tr>
+            <tr><td>001 000003</td><td>95,45 × 0,0045 = 0,43</td><td class="val">0,43 €</td></tr>
+            <tr><td>001 000004</td><td>67,75 × 0,0045 = 0,30 → inférieur au minimum</td><td class="val">0,35 €</td></tr>
+            <tr class="t-total"><td colspan="2">Total des commissions</td><td class="val">1,50 €</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="corr-etape">
+        <span class="c-num">7</span>
+        <code>Montant net perçu = 311,00 − 1,50 = 309,50 €</code>
+        <p class="res">Montant net perçu = 309,50 €</p>
+      </div>
+    </div>
+  </div>
+</details>
+
+<!-- EX 11 -->
+<details class="exo-card">
+  <summary class="exo-header">
+    <span class="exo-num">Ex. 11</span>
+    <span class="badge badge-exam">🎓 sujet complet</span>
+    <span class="exo-titre-txt">Les avantages du paiement par carte</span>
+    <span class="chevron">▼</span>
+  </summary>
+  <div class="exo-body">
+    <div class="contexte">
+      <strong>Document 4 – les avantages du paiement par carte bancaire</strong><br>
+      En France, il y a 50 millions de cartes bancaires, 1 million de TPE dans les commerces et 45 000 distributeurs de billets.
+      <ul>
+        <li><strong>Simple à utiliser</strong> : le TPE enregistre le paiement en quelques secondes. Moins d'espèces à manipuler, gain de temps. Le service est plus rapide et il y a moins d'erreurs de caisse.</li>
+        <li><strong>Sécurité</strong> : le paiement est garanti par la banque. Moins de risque de fraude qu'avec les espèces ou les chèques.</li>
+        <li><strong>Rapidité</strong> : en caisse, le paiement prend quelques instants. Pour les clients, c'est un vrai « plus » : moins d'attente, meilleure relation avec le client.</li>
+        <li><strong>Gestion facile</strong> : tous les paiements sont informatisés. On retrouve facilement une opération et on suit les paiements jour après jour.</li>
+      </ul>
+    </div>
+    <div class="questions">
+      <div class="question"><span class="q-num">1</span><p>Cite deux avantages pour le <strong>client</strong>.</p></div>
+      <div class="question"><span class="q-num">2</span><p>Cite trois avantages pour le <strong>commerçant</strong>.</p></div>
+      <div class="question"><span class="q-num">3</span><p>Cite deux autres moyens de paiement.</p></div>
+      <div class="question"><span class="q-num">4</span><p>Le paiement par carte a-t-il des inconvénients pour le commerçant ? Lesquels ?</p></div>
+    </div>
+    <div class="ordre-grandeur"><strong>Aide :</strong> pour la question 4, relis le bloc 2 (document 2).</div>
+    <button class="btn-corrige" onclick="toggleCorr(this)">✅ Voir la correction</button>
+    <div class="correction">
+      <div class="corr-etape">
+        <span class="c-num">1</span>
+        <ul>
+          <li>un service plus rapide, moins d'attente en caisse ;</li>
+          <li>moins de risque d'erreur au moment de payer.</li>
+        </ul>
+      </div>
+      <div class="corr-etape">
+        <span class="c-num">2</span>
+        <ul>
+          <li>simple et rapide : moins d'espèces à manipuler, gain de temps ;</li>
+          <li>paiement sécurisé et garanti par la banque, moins de fraude ;</li>
+          <li>gestion facilitée : tout est informatisé, suivi jour après jour ;</li>
+          <li>(accepté aussi) moins d'attente, meilleure relation client.</li>
+        </ul>
+      </div>
+      <div class="corr-etape">
+        <span class="c-num">3</span>
+        <p>les espèces ; le chèque bancaire.</p>
+      </div>
+      <div class="corr-etape">
+        <span class="c-num">4</span>
+        <p class="res">Oui :</p>
+        <ul>
+          <li>la location du TPE ;</li>
+          <li>les commissions prises par la banque sur chaque paiement.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</details>
+
+
+<!-- ══ SYNTHÈSE ══ -->
+<hr class="section-sep">
+<div class="bloc-titre">
+  <span class="icone">📌</span>
+  <h2>À retenir</h2>
+</div>
+<div class="memo">
+  <ul>
+    <li>La carte sert à payer (TPE, Internet), retirer des espèces (DAB) et faire des opérations (GAB).</li>
+    <li>Carte à débit immédiat, à débit différé ou carte de crédit.</li>
+    <li>Recto : logo, puce, numéro à 16 chiffres, date de validité, titulaire. Verso : piste magnétique, signature, cryptogramme.</li>
+    <li>Le commerçant est garanti d'être payé jusqu'au plafond. Il paie une commission sur chaque paiement et loue le TPE.</li>
+  </ul>
+  <code>Montant net perçu = Total des encaissements − Total des commissions</code>
+  <ul>
+    <li>Chaque soir, les paiements sont télétransmis. On contrôle le relevé : même nombre et même montant que les tickets.</li>
+  </ul>
+</div>
+
+</main>
+
+<footer class="site-footer">
+  Tle Bac Pro Boulanger-pâtissier – Gestion appliquée &nbsp;|&nbsp; Chapitre 13 – Les encaissements par carte bancaire &nbsp;|&nbsp; 11 exercices + test
+</footer>
+
+<script>
+function toggleCorr(btn) {
+  const corr = btn.nextElementSibling;
+  const isVisible = corr.classList.contains('visible');
+  corr.classList.toggle('visible', !isVisible);
+  btn.textContent = isVisible ? '✅ Voir la correction' : '🔒 Masquer la correction';
+}
+function vf(btn, choix) {
+  const bloc = btn.parentElement;
+  if (bloc.dataset.fait) return;
+  bloc.dataset.fait = '1';
+  const juste = bloc.dataset.rep === choix;
+  btn.classList.add(juste ? 'ok' : 'ko');
+  if (!juste) {
+    bloc.querySelectorAll('button').forEach(b => {
+      if ((b.textContent === 'Vrai' ? 'V' : 'F') === bloc.dataset.rep) b.classList.add('ok');
+    });
+  }
+  bloc.dataset.juste = juste ? '1' : '0';
+  bloc.querySelector('.fb').classList.add('show');
+  const tous = document.querySelectorAll('#vf-zone .vf');
+  const faits = document.querySelectorAll('#vf-zone .vf[data-fait]');
+  if (faits.length === tous.length) {
+    const pts = document.querySelectorAll('#vf-zone .vf[data-juste="1"]').length;
+    document.getElementById('score').textContent = 'Score : ' + pts + ' / ' + tous.length;
+  }
+}
+</script>
+
+</body>
+</html>
